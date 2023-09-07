@@ -1,2 +1,2 @@
 # FORCASTREE
-A model for simulating growth and carbon of forest and agroforestry
+A model **FOR** simulating growth and **CA**rbon of fore**ST** and agrofores**TREE**
