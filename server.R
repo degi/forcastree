@@ -4,7 +4,7 @@ library(RColorBrewer)
 library(shinyWidgets)
 library(reshape)
 library(DescTools)
-library(vtree)
+library(threeforest)
 
 source("afmodel_funcs.R", local = TRUE)
 
@@ -45,11 +45,11 @@ server <- function(input, output, session) {
   
   
   output$home_page <- renderUI({
-    vtreeOutput("home_forest", height = "600px")
+    threeforestOutput("home_forest", height = "600px")
   })
   
-  output$home_forest <- renderVtree({
-    plot(plant(1+runif(100)*50))
+  output$home_forest <- renderThreeforest({
+    plot(plant(1+runif(50)*50, area = c(50, 50)), setting = list(camera_dist = 50))
   })
   
   ## Output UI
