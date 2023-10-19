@@ -49,7 +49,8 @@ server <- function(input, output, session) {
   })
   
   output$home_forest <- renderThreeforest({
-    plot(plant(1+runif(50)*50, area = c(50, 50)), setting = list(camera_dist = 50))
+    plot(plant(1+runif(50)*50, area = c(50, 50)), 
+         setting = list(camera_dist = 50, as_shiny_widget = T, background = F))
   })
   
   ## Output UI
