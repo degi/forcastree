@@ -2,4 +2,4 @@
 Degi Harja Asmara
 
 **Model developer:**
-Grégoire Vincent, Degi Harja Asmara
+Grégoire Vincent, Degi Harja Asmara, Rachmat Mulia
