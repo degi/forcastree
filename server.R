@@ -38,7 +38,7 @@ server <- function(input, output, session) {
   default_species <- read_species_file("www/default_species.trs")
   default_species$color <- color_list[1]
   default_species$select <- F
-  species_df <- default_species[0, ]
+  species_df <- default_species[0,]
   loaded_sp_df <- NULL
   
   v <- reactiveValues(dataTable = NULL, dataPlot = NULL)
@@ -49,8 +49,14 @@ server <- function(input, output, session) {
   })
   
   output$home_forest <- renderThreeforest({
-    plot(plant(1+runif(50)*50, area = c(50, 50)), 
-         setting = list(camera_dist = 50, as_shiny_widget = T, background = F))
+    plot(
+      plant(1 + runif(50) * 50, area = c(50, 50)),
+      setting = list(
+        camera_dist = 50,
+        as_shiny_widget = T,
+        background = F
+      )
+    )
   })
   
   ## Output UI
@@ -140,7 +146,7 @@ server <- function(input, output, session) {
     if (isDataEmpty())
       return()
     d <- v$dataPlot[c(field_labels, parameters[[2]]$fields)]
-    ds <- d[d$select == T, ]
+    ds <- d[d$select == T,]
     if (nrow(ds) > 0)
       d <- ds
     n <- nrow(d)
@@ -184,7 +190,7 @@ server <- function(input, output, session) {
     if (isDataEmpty())
       return()
     d <- v$dataPlot[c(field_labels, parameters[[2]]$fields)]
-    ds <- d[d$select == T, ]
+    ds <- d[d$select == T,]
     if (nrow(ds) > 0)
       d <- ds
     n <- nrow(d)
@@ -275,7 +281,7 @@ server <- function(input, output, session) {
       return()
     d <-
       v$dataPlot[c(field_labels, c(parameters[[3]]$fields, "DbhMaximum"))]
-    ds <- d[d$select == T, ]
+    ds <- d[d$select == T,]
     if (nrow(ds) > 0)
       d <- ds
     n <- nrow(d)
@@ -346,7 +352,7 @@ server <- function(input, output, session) {
       return()
     d <-
       v$dataPlot[c(field_labels, c(parameters[[4]]$fields, "DbhMaximum"))]
-    ds <- d[d$select == T, ]
+    ds <- d[d$select == T,]
     if (nrow(ds) > 0)
       d <- ds
     n <- nrow(d)
@@ -473,7 +479,7 @@ server <- function(input, output, session) {
   ## Add species data
   addSpeciesData <- function(species_data_df, isReplace = F) {
     if (isReplace)
-      species_df <<- species_df[0, ]
+      species_df <<- species_df[0,]
     species_df <<- dplyr::bind_rows(species_df, species_data_df)
     isUpdateTable <<- TRUE
     v$dataPlot <- species_df
@@ -500,7 +506,7 @@ server <- function(input, output, session) {
       f_old <- intersect(field_map$f20, n_load_dif)
       in_sp_map_df <- ori_loaded_sp_df[f_old]
       names(in_sp_map_df) <-
-        field_map[field_map$f20 %in% f_old, ]$f21
+        field_map[field_map$f20 %in% f_old,]$f21
       if (length(f_old) > 0) {
         loaded_sp_df <<- cbind(loaded_sp_df, in_sp_map_df)
       }
@@ -599,7 +605,7 @@ server <- function(input, output, session) {
   
   ## Remove species
   observeEvent(input$remove, {
-    if (nrow(species_df[species_df$select == T,]) == 0) {
+    if (nrow(species_df[species_df$select == T, ]) == 0) {
       showNotification("Nothing is selected", type = "message")
       return()
     }
@@ -613,7 +619,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$myconfirmation, {
     if (isTRUE(input$myconfirmation)) {
-      species_df <<- species_df[species_df$select == F,]
+      species_df <<- species_df[species_df$select == F, ]
       v$dataTable <- species_df
       v$dataPlot <- species_df
     }
@@ -621,7 +627,7 @@ server <- function(input, output, session) {
   
   ## Duplicate species
   observeEvent(input$duplicate, {
-    select_df <- species_df[species_df$select == T,]
+    select_df <- species_df[species_df$select == T, ]
     if (nrow(select_df) == 0) {
       showNotification("Nothing is selected", type = "message")
       return()
@@ -650,6 +656,7 @@ server <- function(input, output, session) {
   
   sexi_data <- reactiveVal(NULL)
   sexi_data_c <- reactiveVal(NULL)
+  area_size <- reactiveVal(1)
   
   # Chave J, Andalo C, Brown S, et al (2005) Tree allometry and improved estimation of carbon stocks and balance in tropical forests. Oecologia 145:87-99. https://doi.org/10.1007/s00442-005-0100-x
   # unit: cm, m, g/cm3, agb in kg
@@ -660,11 +667,31 @@ server <- function(input, output, session) {
   
   output$sexi_output <- renderUI({
     tagList(
-      fileInput(
-        "sexi_file",
-        "Load SExI-FS output file",
-        accept = c("SExI-FS output file", ".txt")
+      fluidRow(
+        column(
+          8,
+          fileInput(
+            "sexi_file",
+            "Load SExI-FS output file",
+            accept = c("SExI-FS output file", ".txt")
+          )
+        ),
+        column(2,
+               numericInput(
+                 "area_size", label = "Area size", value = 1
+               )),
+        column(
+          2,
+          selectInput(
+            "area_unit",
+            label = "Area unit",
+            choices = list("ha" = 1, "m2" = 2),
+            selected = 1
+          )
+        )
       ),
+      
+      
       setSliderColor(c("#6c584c", "#6c584c"), c(1, 2)),
       div(class = "borderbox",
           fluidRow(
@@ -716,6 +743,26 @@ server <- function(input, output, session) {
     update_disp_data(input$aggregate_input, max_t)
   })
   
+  observeEvent(input$area_size, {
+    a <- input$area_size
+    if(input$area_unit == 1) {
+      a <- input$area_size  
+    }else if(input$area_unit == 2) {
+      a <- input$area_size/10000
+    }
+    area_size(a)
+    if(a > 0)
+      update_disp_data(input$aggregate_input, input$max_time)
+  })
+  
+  observeEvent(input$area_unit, {
+    if(input$area_unit == 1) {
+      updateNumericInput(inputId = "area_size", value = area_size())
+    }else if(input$area_unit == 2) {
+      updateNumericInput(inputId = "area_size", value = area_size() * 10000)
+    }
+  })
+  
   update_disp_data <- function(agg_t, max_t = NULL) {
     isolate(tdf <- sexi_data())
     if (is.null(tdf))
@@ -723,13 +770,14 @@ server <- function(input, output, session) {
     if (is.null(max_t))
       max_t <- max(tdf$tdf$SIM_AGE)
     t5 <- seq(agg_t, max_t, agg_t)
-    tdf_5 <- tdf[tdf$SIM_AGE %in% t5,]
+    tdf_5 <- tdf[tdf$SIM_AGE %in% t5, ]
     
     c_df <-
       aggregate(tdf_5$c,
                 by = list(tdf_5$SIM_AGE, tdf_5$SPECIES),
                 FUN = sum)
     names(c_df) <- c("t", "sp", "c")
+    c_df$c <- c_df$c / area_size()
     c_bar <- cast(c_df, sp ~ t, value = "c")
     sexi_data_c(c_bar)
   }
@@ -757,6 +805,7 @@ server <- function(input, output, session) {
     par(mar = c(4, 4, 4, 2) + 0.1)
     v_bar <- apply(c_bar[-1], 2, rev)
     y <- round(colSums(c_bar[-1]), 2)
+    
     lab = "Total carbon stock (t/ha)"
     ytop <- max(y) * 1.05
     x <- barplot(
@@ -793,7 +842,7 @@ server <- function(input, output, session) {
     par(mar = c(4, 4, 3, 2) + 0.1)
     
     v_bar <- apply(c_bar[-1], 2, rev)
-    init <- cbind(0, v_bar[,-ncol(v_bar)])
+    init <- cbind(0, v_bar[, -ncol(v_bar)])
     v_bar2 <- v_bar - init
     y2 <- round(colSums(v_bar2), 2)
     ytop2 <- max(y2) * 1.05
@@ -833,7 +882,7 @@ server <- function(input, output, session) {
     t5 <- seq(agg_t, max_t, agg_t)
     if (length(t5) <= 1)
       return()
-    tdf_5 <- tdf[tdf$SIM_AGE %in% t5,]
+    tdf_5 <- tdf[tdf$SIM_AGE %in% t5, ]
     n_df <-
       aggregate(tdf_5$c,
                 by = list(tdf_5$SIM_AGE, tdf_5$SPECIES),
