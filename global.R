@@ -1,5 +1,38 @@
-# COLOR_DARK <- "#6c584c"
-# COLOR_LIGHT <- "#F0EAD2"
+install_load <- function (package1, ...)  {   
+  
+  # convert arguments to vector
+  packages <- c(package1, ...)
+  
+  # start loop to determine if each package is installed
+  for(package in packages){
+    
+    # if package is installed locally, load
+    if(package %in% rownames(installed.packages()))
+      do.call('library', list(package))
+    
+    # if package is not installed locally, download, then load
+    else {
+      
+      install.packages(package)
+      do.call("library", list(package))
+    }
+  } 
+}
+
+install_load("shinyjs", "shinydashboardPlus", "shinyWidgets", 
+             "RColorBrewer", "reshape", "shinyjqui",
+             "excelR", "fresh", "markdown", "DescTools", "devtools")
+
+
+if(!("threeforest" %in% rownames(installed.packages()))) {
+  install_github("degi/threeforest")
+  do.call("library", list("threeforest"))
+}
+
+
+
+
+
 
 parameters <- list(
   "Species description" = list(
