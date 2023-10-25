@@ -692,7 +692,7 @@ server <- function(input, output, session) {
       ),
       
       
-      setSliderColor(c("#6c584c", "#6c584c"), c(1, 2)),
+      #setSliderColor(c("#6c584c", "#6c584c"), c(1, 2)),
       div(class = "borderbox",
           fluidRow(
             column(
